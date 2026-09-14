@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Login UCP — Indonation Roleplay</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div>
+    <div class="logo-wrap">
+      <img src="/assets/logo.gif" alt="Indonation Roleplay" />
+      <div class="tagline">Indonation Roleplay</div>
+    </div>
+
+    <div class="card">
+      <h1>Masuk ke UCP</h1>
+      <p class="sub">Login pakai akun yang sudah dibuat lewat Discord</p>
+
+      <form id="loginForm">
+        <label for="ucp">Username UCP</label>
+        <input id="ucp" name="ucp" autocomplete="username" required />
+
+        <label for="password">Password</label>
+        <div class="pw-wrap">
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
+          <button type="button" class="pw-eye" data-target="password">&#128065;</button>
+        </div>
+
+        <button type="submit">Masuk</button>
+        <p id="msg" class="msg"></p>
+      </form>
+
+      <p class="switch">Belum punya akun? <a href="https://discord.gg/x3yERrtHFF" target="_blank" rel="noopener">Buat lewat Discord</a></p>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-col">
+      <img src="/assets/logo.gif" alt="logo" class="footer-logo" />
+      <p>Indonation Roleplay adalah komunitas SA-MP roleplay independen. Tidak berafiliasi dengan Rockstar Games atau Take-Two Interactive. Semua merek dagang milik pemiliknya masing-masing.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Link</h4>
+      <a href="https://discord.gg/x3yERrtHFF" target="_blank" rel="noopener">Discord</a>
+      <a href="login.html">UCP Login</a>
+      <a href="register.html">Pasang Password</a>
+    </div>
+    <div class="footer-col">
+      <h4>Server Info</h4>
+      <span>IP: 217.216.111.29:7011</span>
+      <span>Status: Cek di Dashboard</span>
+    </div>
+  </footer>
+  <p class="copyright">&copy; 2026 Indonation Roleplay. All Rights Reserved.</p>
+
+  <script>
+    document.querySelectorAll('.pw-eye').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const input = document.getElementById(btn.dataset.target);
+        input.type = input.type === 'password' ? 'text' : 'password';
+        btn.textContent = input.type === 'password' ? '\u{1F441}' : '\u{1F576}';
+      });
+    });
+
+    const API_BASE = '';
+    const form = document.getElementById('loginForm');
+    const msg = document.getElementById('msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = '';
+      msg.className = 'msg';
+      const button = form.querySelector('button');
+      button.disabled = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ucp: form.ucp.value.trim(), password: form.password.value }),
+        });
+        const data = await res.json();
+
+        if (!data.ok) {
+          msg.textContent = data.message || 'Login gagal.';
+          msg.classList.add('error');
+          return;
+        }
+
+        localStorage.setItem('ucp_token', data.token);
+        msg.textContent = `Berhasil masuk sebagai ${data.ucp}. Mengalihkan...`;
+        msg.classList.add('ok');
+        setTimeout(() => (window.location.href = 'dashboard.html'), 600);
+      } catch (err) {
+        msg.textContent = 'Tidak bisa menghubungi server. Coba lagi.';
+        msg.classList.add('error');
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
